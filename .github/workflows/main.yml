@@ -22,16 +22,16 @@ jobs:
 
       - name: Install Android SDK and NDK
         run: |
-          # Install Android SDK and NDK using the SDK manager
+          # Install necessary tools
           sudo apt-get update
-          sudo apt-get install -y unzip
+          sudo apt-get install -y unzip wget
 
           # Download Android Command Line Tools (latest stable)
           wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
-          unzip commandlinetools-linux-7302050_latest.zip -d /usr/local/android-sdk
+          unzip commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk
 
-          # Set environment variables
-          export ANDROID_HOME=/usr/local/android-sdk
+          # Set environment variables for Android SDK
+          export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/bin:$PATH
 
           # Install Android SDK components using sdkmanager
