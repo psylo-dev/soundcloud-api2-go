@@ -38,7 +38,7 @@ jobs:
         gomobile bind -target=android -o soundcloud.aar
 
     - name: Upload AAR
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: soundcloud-android
         path: soundcloud-api/soundcloud.aar
