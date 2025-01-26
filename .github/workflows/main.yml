@@ -27,6 +27,13 @@ jobs:
           # Initialize GoMobile (creates necessary Android setup)
           gomobile init
 
+      - name: Install compatible Android NDK
+        run: |
+          # Download and install the correct NDK version (NDK 21)
+          wget https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
+          unzip android-ndk-r21e-linux-x86_64.zip -d /usr/local/lib/android/
+          export ANDROID_NDK_HOME=/usr/local/lib/android/android-ndk-r21e
+
       - name: Get Go dependencies
         run: |
           # Download Go dependencies
@@ -45,7 +52,7 @@ jobs:
           go test -v ./soundcloudapi_test
 
       - name: Upload Android Library AAR file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3  # Update to the latest version of upload-artifact
         with:
           name: android-library
           path: mylibrary.aar
