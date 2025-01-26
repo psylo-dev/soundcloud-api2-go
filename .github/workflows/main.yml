@@ -1,7 +1,7 @@
 name: Build Go Android Library
 
 on:
-  workflow_dispatch:   # Manual trigger
+  workflow_dispatch:   # Manual trigger for workflow
 
 jobs:
   build:
@@ -17,40 +17,53 @@ jobs:
 
       # Step 2: Check out the repository code
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      # Step 3: Set up Android SDK and NDK using the official Google action
-      - name: Set up Android SDK and NDK
-        uses: google-github-actions/setup-android-sdk@v2
+      # Step 3: Set up JDK 17 using actions/setup-java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          sdk-version: "30.0.3"     # SDK Build tools version
-          ndk-version: "21.3.6528147"  # NDK version for GoMobile
-          api-level: 21             # Minimum API level
-          platform: android-21      # Install platform-21 for GoMobile support
+          java-version: '17'
+          distribution: 'temurin'
 
-      # Step 4: Install GoMobile
+      # Step 4: Set up Android SDK using android-actions/setup-android
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: 'yes'  # Automatically accept SDK licenses
+          log-accepted-android-sdk-licenses: 'false'  # Skip logging licenses
+          packages: 'platform-tools'  # Install platform-tools package
+
+      # Step 5: Set up Android NDK using nttld/setup-ndk
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r21e    # Specify the NDK version you want to install (adjust as needed)
+          link-to-sdk: true    # Link the NDK to the SDK
+
+      # Step 6: Install GoMobile
       - name: Install GoMobile
         run: |
-          # Install GoMobile and initialize
+          # Install GoMobile and initialize it
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile init
 
-      # Step 5: Download dependencies for your Go project
+      # Step 7: Download dependencies for your Go project
       - name: Get Go dependencies
         run: |
           go get -v -t -d ./...
 
-      # Step 6: Build Go Android Library (AAR file)
+      # Step 8: Build Go Android Library (AAR file)
       - name: Build Go Android Library (AAR)
         run: |
           gomobile bind -v -o mylibrary.aar .
 
-      # Step 7: Run tests (Optional)
+      # Step 9: Run tests (Optional)
       - name: Run Go tests
         run: |
           go test -v ./soundcloudapi_test
 
-      # Step 8: Upload the AAR file as an artifact
+      # Step 10: Upload the AAR file as an artifact
       - name: Upload AAR file
         uses: actions/upload-artifact@v3
         with:
