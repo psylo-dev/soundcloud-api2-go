@@ -19,13 +19,14 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      # Step 3: Set up Android SDK and NDK using setup-android action
+      # Step 3: Set up Android SDK and NDK using the official Google action
       - name: Set up Android SDK and NDK
-        uses: reactions/setup-android@v2
+        uses: google-github-actions/setup-android-sdk@v2
         with:
-          api-level: 21          # Minimum API level required (21 and above for GoMobile)
-          build-tools-version: 30.0.3  # You can update this version
-          ndk-version: 21.3.6528147   # Required NDK version for GoMobile
+          sdk-version: "30.0.3"     # SDK Build tools version
+          ndk-version: "21.3.6528147"  # NDK version for GoMobile
+          api-level: 21             # Minimum API level
+          platform: android-21      # Install platform-21 for GoMobile support
 
       # Step 4: Install GoMobile
       - name: Install GoMobile
