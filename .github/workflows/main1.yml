@@ -52,17 +52,8 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
-      - name: Compress
-        run: tar -czvf output.tar.gz -C . .
-      - name: Upload Artifacts
-        if: ${{ env.VERSION!='' }}
+      - name: Upload .aar directly
         uses: actions/upload-artifact@v4
         with:
-          name: gomobile_soundcloudv2api_android_aar_${{ env.VERSION }}.tar.gz
-          path: output.tar.gz
-      - name: Upload Artifacts (default version)
-        if: ${{ env.VERSION=='' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: gomobile_soundcloudv2api_android_aar
-          path: output.tar.gz
+          name: gomobile_soundcloudv2api_android_aar_${{ env.VERSION || 'default' }}.aar
+          path: soundcloudv2go.aar
