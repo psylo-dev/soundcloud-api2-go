@@ -48,12 +48,12 @@ jobs:
           GO111MODULE: "on"
       - name: Build gomobile_android
         run: |
-          gomobile bind -v -target=android/arm,android/arm64,android/386,android/amd64 .
+          gomobile bind -v -target=android/arm,android/arm64,android/386,android/amd64 -o soundcloudv2go.aar .
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
       - name: Compress
-        run: tar -czvf output.tar.gz -C output/android .
+        run: tar -czvf output.tar.gz -C . .
       - name: Upload Artifacts
         if: ${{ env.VERSION!='' }}
         uses: actions/upload-artifact@v4
