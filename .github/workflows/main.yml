@@ -20,19 +20,33 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
+      - name: Install Android SDK and NDK
+        run: |
+          # Install Android SDK and NDK using the SDK manager
+          sudo apt-get update
+          sudo apt-get install -y unzip
+
+          # Download Android Command Line Tools (latest stable)
+          wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
+          unzip commandlinetools-linux-7302050_latest.zip -d /usr/local/android-sdk
+
+          # Set environment variables
+          export ANDROID_HOME=/usr/local/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/bin:$PATH
+
+          # Install Android SDK components using sdkmanager
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "build-tools;30.0.3" "ndk;21.3.6528147" "platforms;android-21"
+
+          # Set ANDROID_NDK_HOME to the installed NDK location
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.3.6528147
+
       - name: Install GoMobile
         run: |
           # Install GoMobile
           go install golang.org/x/mobile/cmd/gomobile@latest
           # Initialize GoMobile (creates necessary Android setup)
           gomobile init
-
-      - name: Install compatible Android NDK
-        run: |
-          # Download and install the correct NDK version (NDK 21)
-          wget https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
-          unzip android-ndk-r21e-linux-x86_64.zip -d /usr/local/lib/android/
-          export ANDROID_NDK_HOME=/usr/local/lib/android/android-ndk-r21e
 
       - name: Get Go dependencies
         run: |
@@ -43,8 +57,6 @@ jobs:
         run: |
           # Use gomobile to bind the Go code to an Android AAR file
           gomobile bind -v -o mylibrary.aar .
-
-          # The '.' refers to the root directory of the GitHub workspace, where the Go package is located.
 
       - name: Test Go code
         run: |
