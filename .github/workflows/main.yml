@@ -45,7 +45,7 @@ jobs:
           go test -v ./soundcloudapi_test
 
       - name: Upload Android Library AAR file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: android-library
           path: mylibrary.aar
