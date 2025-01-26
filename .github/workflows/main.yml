@@ -1,7 +1,7 @@
 name: Build Go Android Library
 
 on:
-  workflow_dispatch:   # Manual trigger for workflow
+  workflow_dispatch:  # Manual trigger for workflow
 
 jobs:
   build:
@@ -36,8 +36,7 @@ jobs:
             build-tools;30.0.3   # Specify the build-tools version you need
             platforms;android-30  # Specify platform version
             platform-tools       # Install platform-tools
-            cmdline-tools;latest # Install latest command-line tools
-            sources;android-30   # Android sources
+            cmdline-tools;12266719 # Install specific cmdline tools version
 
       # Step 5: Set up Android NDK using nttld/setup-ndk
       - name: Set up Android NDK
