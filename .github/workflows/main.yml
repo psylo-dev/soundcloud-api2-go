@@ -1,0 +1,51 @@
+name: Build Go Android Library
+
+env:
+  CI: true
+
+on:
+  workflow_dispatch:   # Ermöglicht manuelle Auslösung über GitHub UI
+
+jobs:
+  build:
+    name: Build Android Library
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.13
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Install GoMobile
+        run: |
+          # Install GoMobile
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          # Initialize GoMobile (creates necessary Android setup)
+          gomobile init
+
+      - name: Get Go dependencies
+        run: |
+          # Download Go dependencies
+          go get -v -t -d ./...
+
+      - name: Build Go Android Library (AAR)
+        run: |
+          # Use gomobile to bind the Go code to an Android AAR file
+          gomobile bind -v -o mylibrary.aar .
+
+          # The '.' refers to the root directory of the GitHub workspace, where the Go package is located.
+
+      - name: Test Go code
+        run: |
+          # Run Go tests if you have any
+          go test -v ./soundcloudapi_test
+
+      - name: Upload Android Library AAR file
+        uses: actions/upload-artifact@v2
+        with:
+          name: android-library
+          path: mylibrary.aar
