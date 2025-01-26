@@ -19,32 +19,34 @@ jobs:
       with:
         go-version: '1.23'
 
-    - name: Install Android SDK and NDK
+    - name: Install Android SDK and NDK (without sdkmanager)
       run: |
-        # Install the Android SDK
+        # Install dependencies for downloading and unzipping
         sudo apt-get update
         sudo apt-get install -y wget unzip
 
-        # Download Android SDK command line tools
-        wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-        mkdir -p $HOME/android-sdk/cmdline-tools
-        unzip commandlinetools-linux-7583922_latest.zip -d $HOME/android-sdk/cmdline-tools
-        rm commandlinetools-linux-7583922_latest.zip
+        # Download Android SDK tools
+        wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -O android-sdk-tools.zip
+        mkdir -p $HOME/android-sdk
+        unzip android-sdk-tools.zip -d $HOME/android-sdk
+        rm android-sdk-tools.zip
 
-        # Set ANDROID_SDK_ROOT environment variable
+        # Download Android Platform and NDK manually
+        wget https://dl.google.com/android/repository/platform-tools_r31.0.3-linux.zip -O platform-tools.zip
+        unzip platform-tools.zip -d $HOME/android-sdk
+        rm platform-tools.zip
+
+        wget https://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip -O android-ndk.zip
+        unzip android-ndk.zip -d $HOME/android-sdk
+        rm android-ndk.zip
+
+        # Set environment variables
         echo "export ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-        echo "export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH" >> $GITHUB_ENV
+        echo "export PATH=$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/ndk-bundle:$PATH" >> $GITHUB_ENV
 
-        # Output environment variables for debugging
+        # Verify installation
         echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
         echo "PATH=$PATH"
-
-        # Verify sdkmanager installation
-        sdkmanager --version || echo "sdkmanager not found"
-
-        # Accept licenses and install SDK components
-        yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
-        sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platforms;android-30" "ndk;21.4.7075529" "build-tools;30.0.3"
 
     - name: Install Gomobile
       run: |
