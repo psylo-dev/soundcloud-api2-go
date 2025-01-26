@@ -30,15 +30,20 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          accept-android-sdk-licenses: 'yes'  # Automatically accept SDK licenses
-          log-accepted-android-sdk-licenses: 'false'  # Skip logging licenses
-          packages: 'platform-tools'  # Install platform-tools package
+          accept-android-sdk-licenses: true  # Automatically accept SDK licenses
+          log-accepted-android-sdk-licenses: false  # Don't log the accepted licenses
+          packages: |
+            build-tools;30.0.3   # Specify the build-tools version you need
+            platforms;android-30  # Specify platform version
+            platform-tools       # Install platform-tools
+            cmdline-tools;latest # Install latest command-line tools
+            sources;android-30   # Android sources
 
       # Step 5: Set up Android NDK using nttld/setup-ndk
       - name: Set up Android NDK
         uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r21e    # Specify the NDK version you want to install (adjust as needed)
+          ndk-version: r21e    # Specify the NDK version you want to install
           link-to-sdk: true    # Link the NDK to the SDK
 
       # Step 6: Install GoMobile
