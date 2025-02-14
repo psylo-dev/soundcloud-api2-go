@@ -1,0 +1,70 @@
+name: Build GoMobile
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version Overwrite
+        required: false
+      repo_link:
+        description: GitHub Repository Link for gomobile
+        required: true
+      aar_name:
+        description: Name for the output AAR file
+        required: true
+  push:
+    tags:
+      - "v*"
+  pull_request:
+
+env:
+  VERSION: ${{ github.event.inputs.version || (startsWith(github.ref, 'refs/tags/') && github.ref || '') }}
+  REPO_LINK: ${{ github.event.inputs.repo_link }}
+  AAR_NAME: ${{ github.event.inputs.aar_name }}
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: ${{ env.REPO_LINK }}
+      - uses: actions/setup-java@v4.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: android-actions/setup-android@v3.2.2
+      - name: Install Android Platform
+        run: |
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-29"
+          sdkmanager "build-tools;29.0.2"
+      - uses: nttld/setup-ndk@v1.5.0
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+      - uses: actions/setup-go@v5.3.0
+        with:
+          go-version: '^1.23'
+      - name: Install Gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          go get golang.org/x/mobile/cmd/gobind
+          go get golang.org/x/mobile/cmd/gomobile
+          gomobile init
+        env:
+          GOPROXY: https://proxy.golang.org,direct
+          GO111MODULE: "on"
+      - name: Build gomobile_android
+        run: |
+          gomobile bind -v -target=android/arm,android/arm64,android/386,android/amd64 -o ${{ env.AAR_NAME }}.aar .
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          ANDROID_NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
+      - name: Upload .aar directly
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: ${{ env.AAR_NAME }}_${{ env.VERSION || 'default' }}.aar
+          path: ${{ env.AAR_NAME }}.aar
